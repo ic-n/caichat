@@ -1,0 +1,52 @@
+version: '3'
+
+vars:
+  IMAGE: ic-n/caichat
+  TAG: latest
+
+tasks:
+  default:
+    cmds:
+      - task: build
+      - task: deploy
+      - sleep 1
+      - task: logs
+      - task: port-forward
+
+  build:
+    cmds:
+      - docker build -t {{.IMAGE}}:{{.TAG}} -f ./deploy/facade.dockerfile .
+      - helm package deploy
+
+  deploy:
+    cmds:
+      - helm uninstall --namespace default caichat-0-1
+      - >
+        helm install
+        --set image.repository="{{.IMAGE}}"
+        --set image.tag="{{.TAG}}"
+        caichat-0-1
+        caichat-0.1.0.tgz
+
+  logs:
+    cmds:
+      - kubectl --namespace default get pod {{.POD_NAME}}
+      - kubectl --namespace default describe pod {{.POD_NAME}}
+      - kubectl --namespace default logs {{.POD_NAME}}
+    vars:
+      POD_NAME:
+        sh: kubectl get pods --namespace default -l "app.kubernetes.io/name=caichat" -o jsonpath="{.items[0].metadata.name}"
+      CONTAINER_PORT:
+        sh: kubectl get pod --namespace default {{.POD_NAME}} -o jsonpath="{.spec.containers[0].ports[0].containerPort}"
+
+  port-forward:
+    cmds:
+      - cmd: echo "Visit http://127.0.0.1:8080 to use your application"
+        silent: true
+      - cmd: kubectl --namespace default port-forward {{.POD_NAME}} 8080:{{.CONTAINER_PORT}}
+    interactive: true
+    vars:
+      POD_NAME:
+        sh: kubectl get pods --namespace default -l "app.kubernetes.io/name=caichat" -o jsonpath="{.items[0].metadata.name}"
+      CONTAINER_PORT:
+        sh: kubectl get pod --namespace default {{.POD_NAME}} -o jsonpath="{.spec.containers[0].ports[0].containerPort}"
