@@ -10,8 +10,17 @@ message HealthResponse {
 
 message HealthRequest {};
 
+message GenerateRequest {};
+
+message GenerateResponse {
+  string text = 1;
+};
+
 service CaiChatService {
   rpc Health(HealthRequest) returns (HealthResponse) {
     option (google.api.http) = { get: "/v1/health" };
+  }
+  rpc Generate(GenerateRequest) returns (GenerateResponse) {
+    option (google.api.http) = { get: "/v1/generate" };
   }
 }

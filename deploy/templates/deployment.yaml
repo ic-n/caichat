@@ -27,12 +27,21 @@ spec:
       serviceAccountName: {{ include "caichat.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+        - name: persistent-volume
+          persistentVolumeClaim:
+            claimName: persistent-volume-claim
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: OLLAMA_HOST
+              value: "http://localhost:{{.Values.ollama.port}}"
+            - name: OLLAMA_MODEL
+              value: "{{ .Values.ollama.model }}"
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
@@ -47,6 +56,16 @@ spec:
               port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+        - name: ollama
+          image: "{{ .Values.ollama.repository }}:{{ .Values.ollama.tag }}"
+          imagePullPolicy: {{ .Values.ollama.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.ollama.port }}
+              protocol: TCP
+          volumeMounts:
+            - mountPath: "/root/.ollama"
+              name: persistent-volume
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

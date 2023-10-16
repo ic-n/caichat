@@ -1,0 +1,11 @@
+ollama:
+  repository: ollama/ollama
+  tag: latest
+  pullPolicy: IfNotPresent
+
+  port: 11434
+
+  model: "llama2:7b"
+
+persist:
+  path: /tmp/ollama-k8s-data

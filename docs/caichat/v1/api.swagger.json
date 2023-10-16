@@ -16,6 +16,28 @@
     "application/json"
   ],
   "paths": {
+    "/v1/generate": {
+      "get": {
+        "operationId": "CaiChatService_Generate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GenerateResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "CaiChatService"
+        ]
+      }
+    },
     "/v1/health": {
       "get": {
         "operationId": "CaiChatService_Health",
@@ -65,6 +87,14 @@
             "type": "object",
             "$ref": "#/definitions/protobufAny"
           }
+        }
+      }
+    },
+    "v1GenerateResponse": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string"
         }
       }
     },

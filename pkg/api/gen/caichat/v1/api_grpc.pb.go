@@ -19,7 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	CaiChatService_Health_FullMethodName = "/caichat.v1.CaiChatService/Health"
+	CaiChatService_Health_FullMethodName   = "/caichat.v1.CaiChatService/Health"
+	CaiChatService_Generate_FullMethodName = "/caichat.v1.CaiChatService/Generate"
 )
 
 // CaiChatServiceClient is the client API for CaiChatService service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CaiChatServiceClient interface {
 	Health(ctx context.Context, in *HealthRequest, opts ...grpc.CallOption) (*HealthResponse, error)
+	Generate(ctx context.Context, in *GenerateRequest, opts ...grpc.CallOption) (*GenerateResponse, error)
 }
 
 type caiChatServiceClient struct {
@@ -46,11 +48,21 @@ func (c *caiChatServiceClient) Health(ctx context.Context, in *HealthRequest, op
 	return out, nil
 }
 
+func (c *caiChatServiceClient) Generate(ctx context.Context, in *GenerateRequest, opts ...grpc.CallOption) (*GenerateResponse, error) {
+	out := new(GenerateResponse)
+	err := c.cc.Invoke(ctx, CaiChatService_Generate_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CaiChatServiceServer is the server API for CaiChatService service.
 // All implementations must embed UnimplementedCaiChatServiceServer
 // for forward compatibility
 type CaiChatServiceServer interface {
 	Health(context.Context, *HealthRequest) (*HealthResponse, error)
+	Generate(context.Context, *GenerateRequest) (*GenerateResponse, error)
 	mustEmbedUnimplementedCaiChatServiceServer()
 }
 
@@ -60,6 +72,9 @@ type UnimplementedCaiChatServiceServer struct {
 
 func (UnimplementedCaiChatServiceServer) Health(context.Context, *HealthRequest) (*HealthResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Health not implemented")
+}
+func (UnimplementedCaiChatServiceServer) Generate(context.Context, *GenerateRequest) (*GenerateResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Generate not implemented")
 }
 func (UnimplementedCaiChatServiceServer) mustEmbedUnimplementedCaiChatServiceServer() {}
 
@@ -92,6 +107,24 @@ func _CaiChatService_Health_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CaiChatService_Generate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GenerateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CaiChatServiceServer).Generate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CaiChatService_Generate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CaiChatServiceServer).Generate(ctx, req.(*GenerateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CaiChatService_ServiceDesc is the grpc.ServiceDesc for CaiChatService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -102,6 +135,10 @@ var CaiChatService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Health",
 			Handler:    _CaiChatService_Health_Handler,
+		},
+		{
+			MethodName: "Generate",
+			Handler:    _CaiChatService_Generate_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

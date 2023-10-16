@@ -8,25 +8,34 @@ tasks:
   default:
     cmds:
       - task: build
-      - task: deploy
-      - sleep 1
-      - task: logs
-      - task: port-forward
+      - task: upgrade
 
   build:
     cmds:
       - docker build -t {{.IMAGE}}:{{.TAG}} -f ./deploy/caichat.dockerfile .
       - helm package deploy
 
-  deploy:
+  install:
     cmds:
-      - helm uninstall --namespace default caichat-0-1
       - >
         helm install
+        -f deploy/values/default.yaml
         --set image.repository="{{.IMAGE}}"
         --set image.tag="{{.TAG}}"
         caichat-0-1
         caichat-0.1.0.tgz
+
+  upgrade:
+    cmds:
+      - >
+        helm upgrade
+        -f deploy/values/default.yaml
+        --set image.repository="{{.IMAGE}}"
+        --set image.tag="{{.TAG}}"
+        caichat-0-1
+        caichat-0.1.0.tgz
+    status:
+      - test -d directory
 
   logs:
     cmds:
