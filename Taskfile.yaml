@@ -15,7 +15,7 @@ tasks:
 
   build:
     cmds:
-      - docker build -t {{.IMAGE}}:{{.TAG}} -f ./deploy/facade.dockerfile .
+      - docker build -t {{.IMAGE}}:{{.TAG}} -f ./deploy/caichat.dockerfile .
       - helm package deploy
 
   deploy:
@@ -50,3 +50,9 @@ tasks:
         sh: kubectl get pods --namespace default -l "app.kubernetes.io/name=caichat" -o jsonpath="{.items[0].metadata.name}"
       CONTAINER_PORT:
         sh: kubectl get pod --namespace default {{.POD_NAME}} -o jsonpath="{.spec.containers[0].ports[0].containerPort}"
+
+  dev-gen:
+    cmds:
+      - buf lint proto
+      - buf generate
+      - go mod tidy

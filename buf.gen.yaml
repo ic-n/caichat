@@ -1,0 +1,21 @@
+version: v1
+managed:
+  enabled: true
+  go_package_prefix:
+    default: github.com/ic-n/caichat/gen
+    except:
+      - buf.build/googleapis/googleapis
+plugins:
+  - plugin: buf.build/protocolbuffers/go
+    out: pkg/api/gen
+    opt: paths=source_relative
+  - plugin: buf.build/grpc/go:v1.3.0
+    out: pkg/api/gen
+    opt: paths=source_relative
+  - plugin: buf.build/grpc-ecosystem/gateway:v2.18.0
+    out: pkg/api/gen
+    opt:
+      - paths=source_relative
+      - generate_unbound_methods=true
+  - plugin: buf.build/grpc-ecosystem/openapiv2:v2.18.0
+    out: docs
