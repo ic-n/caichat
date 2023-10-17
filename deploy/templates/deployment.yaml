@@ -39,7 +39,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: OLLAMA_HOST
-              value: "http://localhost:{{.Values.ollama.port}}"
+              value: "http://localhost:{{.Values.ollama.service.port}}"
             - name: OLLAMA_MODEL
               value: "{{ .Values.ollama.model }}"
           ports:
@@ -57,15 +57,17 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
         - name: ollama
-          image: "{{ .Values.ollama.repository }}:{{ .Values.ollama.tag }}"
-          imagePullPolicy: {{ .Values.ollama.pullPolicy }}
+          image: "{{ .Values.ollama.image.repository }}:{{ .Values.ollama.image.tag }}"
+          imagePullPolicy: {{ .Values.ollama.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.ollama.port }}
+              containerPort: {{ .Values.ollama.service.port }}
               protocol: TCP
           volumeMounts:
             - mountPath: "/root/.ollama"
               name: persistent-volume
+          resources:
+            {{- toYaml .Values.ollama.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

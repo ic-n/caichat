@@ -10,7 +10,9 @@ message HealthResponse {
 
 message HealthRequest {};
 
-message GenerateRequest {};
+message GenerateRequest {
+  string prompt = 1;
+};
 
 message GenerateResponse {
   string text = 1;

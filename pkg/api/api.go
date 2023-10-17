@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"strings"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	caichatv1 "github.com/ic-n/caichat/pkg/api/gen/caichat/v1"
@@ -19,24 +20,22 @@ type Server struct {
 }
 
 func (s Server) Health(_ context.Context, _ *caichatv1.HealthRequest) (*caichatv1.HealthResponse, error) {
-	s.log.With(slog.Attr{
-		Key:   "endpoint",
-		Value: slog.StringValue("health"),
-	}).Info("called")
-
 	return &caichatv1.HealthResponse{
 		Ok: true,
 	}, nil
 }
 
-func (s Server) Generate(ctx context.Context, _ *caichatv1.GenerateRequest) (*caichatv1.GenerateResponse, error) {
-	var r string
+func (s Server) Generate(ctx context.Context, req *caichatv1.GenerateRequest) (*caichatv1.GenerateResponse, error) {
+	var r strings.Builder
+
+	s.log.Info("got request")
 
 	err := s.ollamaClient.Generate(ctx, &api.GenerateRequest{
-		Prompt: "hello",
+		Prompt: req.Prompt,
+		System: "You are exceptionally short, you use only few words to reply.",
 	}, func(gr api.GenerateResponse) error {
 		s.log.With("gr", gr).Info("generated")
-		r = gr.Response
+		r.WriteString(gr.Response)
 		return nil
 	})
 	if err != nil {
@@ -44,7 +43,7 @@ func (s Server) Generate(ctx context.Context, _ *caichatv1.GenerateRequest) (*ca
 	}
 
 	return &caichatv1.GenerateResponse{
-		Text: r,
+		Text: r.String(),
 	}, nil
 }
 

@@ -2,40 +2,33 @@ version: '3'
 
 vars:
   IMAGE: ic-n/caichat
-  TAG: latest
+  TAG:
+    sh: echo $RANDOM | md5 | head -c 20
 
 tasks:
   default:
     cmds:
       - task: build
-      - task: upgrade
+      - task: deploy
 
   build:
     cmds:
       - docker build -t {{.IMAGE}}:{{.TAG}} -f ./deploy/caichat.dockerfile .
       - helm package deploy
 
-  install:
+  uninstall:
     cmds:
-      - >
-        helm install
-        -f deploy/values/default.yaml
-        --set image.repository="{{.IMAGE}}"
-        --set image.tag="{{.TAG}}"
-        caichat-0-1
-        caichat-0.1.0.tgz
+      - helm uninstall caichat
 
-  upgrade:
+  deploy:
     cmds:
       - >
-        helm upgrade
+        helm upgrade --install
         -f deploy/values/default.yaml
         --set image.repository="{{.IMAGE}}"
         --set image.tag="{{.TAG}}"
-        caichat-0-1
+        caichat
         caichat-0.1.0.tgz
-    status:
-      - test -d directory
 
   logs:
     cmds:

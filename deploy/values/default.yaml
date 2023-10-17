@@ -1,11 +1,26 @@
+resources:
+  limits:
+    cpu: 200m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
 ollama:
-  repository: ollama/ollama
-  tag: latest
-  pullPolicy: IfNotPresent
-
-  port: 11434
-
+  image:
+    repository: ollama/ollama
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    port: 11434
   model: "llama2:7b"
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 4Gi
+    requests:
+      cpu: 500m
+      memory: 2Gi
 
 persist:
   path: /tmp/ollama-k8s-data

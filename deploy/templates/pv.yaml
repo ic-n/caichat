@@ -4,6 +4,7 @@ metadata:
   name: caichat-pv-ollama
   labels:
     type: local
+    {{- include "caichat.labels" . | nindent 4 }}
 spec:
   accessModes:
     - ReadWriteOnce

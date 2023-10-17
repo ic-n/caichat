@@ -33,6 +33,14 @@
             }
           }
         },
+        "parameters": [
+          {
+            "name": "prompt",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
         "tags": [
           "CaiChatService"
         ]
